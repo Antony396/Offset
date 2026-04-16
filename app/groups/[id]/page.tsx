@@ -70,11 +70,7 @@ export default async function GroupPage({
           .select('*')
           .eq('group_id', id)
           .order('effective_from', { ascending: true }),
-        supabase
-          .from('contributions')
-          .select('*, profile:profiles(id, full_name, email)')
-          .eq('group_id', id)
-          .order('contributed_at', { ascending: false }),
+        supabase.rpc('get_group_contributions', { p_group_id: id }),
         supabase
           .from('group_members')
           .select('*, profile:profiles(id, full_name, email)')
@@ -82,7 +78,10 @@ export default async function GroupPage({
       ])
 
     rates = ratesRaw ?? []
-    contributions = (contributionsRaw ?? []) as Contribution[]
+    contributions = (contributionsRaw ?? []).map((c: any) => ({
+      ...c,
+      profile: { id: c.user_id, full_name: c.full_name, email: c.email },
+    })) as Contribution[]
     members = (membersRaw ?? []) as GroupMember[]
   }
 

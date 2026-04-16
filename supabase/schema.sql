@@ -15,6 +15,7 @@ drop function if exists create_group(text, numeric, text, numeric, date, text, t
 drop function if exists join_group(text, text, text);
 drop function if exists submit_contribution(uuid, numeric, date, text, text, text);
 drop function if exists confirm_contribution(uuid);
+drop function if exists get_group_contributions(uuid);
 drop table if exists contributions cascade;
 drop table if exists interest_rates cascade;
 drop table if exists group_members cascade;
@@ -273,6 +274,42 @@ begin
   update contributions
   set status = 'confirmed', confirmed_at = now(), confirmed_by = v_user_id
   where id = p_contribution_id;
+end;
+$$;
+
+-- ─────────────────────────────────────────
+-- Get group contributions (bypasses RLS)
+-- ─────────────────────────────────────────
+
+create or replace function get_group_contributions(p_group_id uuid)
+returns table (
+  id uuid,
+  group_id uuid,
+  user_id uuid,
+  amount numeric,
+  contributed_at date,
+  notes text,
+  status text,
+  confirmed_at timestamptz,
+  confirmed_by uuid,
+  created_at timestamptz,
+  full_name text,
+  email text
+)
+language plpgsql security definer as $$
+begin
+  if auth.uid() is null then raise exception 'Not authenticated'; end if;
+  if not is_group_member(p_group_id) then raise exception 'Not a member'; end if;
+
+  return query
+    select
+      c.id, c.group_id, c.user_id, c.amount, c.contributed_at,
+      c.notes, c.status, c.confirmed_at, c.confirmed_by, c.created_at,
+      p.full_name, p.email
+    from contributions c
+    join profiles p on p.id = c.user_id
+    where c.group_id = p_group_id
+    order by c.contributed_at desc;
 end;
 $$;
 
