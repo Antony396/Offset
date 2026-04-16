@@ -14,13 +14,15 @@ export function ExportButton({ contributions, groupName }: Props) {
     const confirmed = contributions.filter(c => c.status === 'confirmed')
 
     const rows = [
-      ['Member', 'Date', 'Amount ($)', 'Notes', 'Confirmed At'],
+      ['Member', 'Email', 'Date Paid', 'Date Submitted', 'Date Confirmed', 'Amount ($)', 'Notes'],
       ...confirmed.map(c => [
         c.profile?.full_name ?? 'Unknown',
+        c.profile?.email ?? '',
         c.contributed_at,
+        new Date(c.created_at).toLocaleDateString('en-AU'),
+        c.confirmed_at ? new Date(c.confirmed_at).toLocaleDateString('en-AU') : '',
         c.amount.toFixed(2),
         c.notes ?? '',
-        c.confirmed_at ? new Date(c.confirmed_at).toLocaleDateString('en-AU') : '',
       ]),
     ]
 
