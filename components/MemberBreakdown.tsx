@@ -15,22 +15,24 @@ export function MemberBreakdown({ members, totalContributed, interestRate }: Pro
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       {sorted.map((m) => {
         const pct = totalContributed > 0
           ? Math.round((m.total_contributed / totalContributed) * 100)
           : 0
-
-        const annualSaving = m.total_contributed * (interestRate / 100)
+        const nextWeek = m.total_contributed * (interestRate / 100 / 52)
 
         return (
           <div key={m.user_id}>
-            <div className="flex items-center justify-between mb-1">
+            <div className="flex items-start justify-between mb-1.5">
               <span className="text-sm text-zinc-200 font-medium">{m.full_name}</span>
               <div className="text-right">
-                <span className="text-sm font-semibold text-emerald-400">
-                  {formatCurrency(m.total_contributed)}
-                </span>
+                <p className="text-xs text-zinc-500">
+                  saved <span className="text-emerald-400 font-semibold">{formatCurrency(m.total_saved)}</span>
+                </p>
+                <p className="text-xs text-zinc-500">
+                  next week <span className="text-emerald-300 font-semibold">{formatCurrency(nextWeek)}</span>
+                </p>
               </div>
             </div>
             <div className="h-1.5 w-full rounded-full bg-zinc-800">
@@ -39,12 +41,9 @@ export function MemberBreakdown({ members, totalContributed, interestRate }: Pro
                 style={{ width: `${pct}%` }}
               />
             </div>
-            <div className="flex justify-between mt-0.5">
-              <p className="text-xs text-zinc-600">{pct}% of pool</p>
-              <p className="text-xs text-zinc-500">
-                saves <span className="text-emerald-500">{formatCurrency(annualSaving)}</span>/yr
-              </p>
-            </div>
+            <p className="text-xs text-zinc-600 mt-0.5">
+              {formatCurrency(m.total_contributed)} · {pct}% of pool
+            </p>
           </div>
         )
       })}
