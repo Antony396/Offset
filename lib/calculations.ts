@@ -1,4 +1,4 @@
-import type { Contribution, InterestRate, SavingsSummary, MemberSavings } from '@/types'
+import type { Contribution, InterestRate, SavingsSummary, MemberSavings, ContributionSavings } from '@/types'
 
 /**
  * Australian home loan offset account interest calculation.
@@ -47,6 +47,8 @@ export function calculateSavings(
 
     const saved = savedForContribution(contribution, rates, today)
     const savedThisMonth = savedForContribution(contribution, rates, today, monthStart)
+    const contribDate = new Date(contribution.contributed_at)
+    const daysInFund = Math.floor((today.getTime() - contribDate.getTime()) / (1000 * 60 * 60 * 24))
 
     totalSaved += saved
     savingsThisMonth += savedThisMonth
@@ -57,10 +59,19 @@ export function calculateSavings(
         full_name: contribution.profile?.full_name ?? 'Unknown',
         total_contributed: 0,
         total_saved: 0,
+        contributions: [],
       }
     }
     perMember[contribution.user_id].total_contributed += contribution.amount
     perMember[contribution.user_id].total_saved += saved
+    perMember[contribution.user_id].contributions.push({
+      id: contribution.id,
+      amount: contribution.amount,
+      contributed_at: contribution.contributed_at,
+      days_in_fund: Math.max(0, daysInFund),
+      interest_saved: saved,
+      notes: contribution.notes,
+    })
   }
 
   // Current total pool × current daily rate

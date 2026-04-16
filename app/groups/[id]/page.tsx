@@ -14,6 +14,7 @@ import { Plus, Settings } from 'lucide-react'
 import type { Contribution, InterestRate, GroupMember } from '@/types'
 import { CopyInviteButton } from './CopyInviteButton'
 import { ExportButton } from '@/components/ExportButton'
+import { MemberSavingsBreakdown } from '@/components/MemberSavingsBreakdown'
 import {
   MOCK_USER, MOCK_GROUP, MOCK_MEMBERS, MOCK_RATES, MOCK_CONTRIBUTIONS,
 } from '@/lib/mock-data'
@@ -204,6 +205,16 @@ export default async function GroupPage({
                 totalContributed={summary.total_contributed}
                 interestRate={currentRate}
               />
+            </CardContent>
+          </Card>
+
+          {/* Per-contribution savings breakdown */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Savings by member</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <MemberSavingsBreakdown members={summary.per_member} />
             </CardContent>
           </Card>
 

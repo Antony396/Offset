@@ -66,4 +66,14 @@ export interface MemberSavings {
   full_name: string
   total_contributed: number
   total_saved: number
+  contributions: ContributionSavings[]
+}
+
+export interface ContributionSavings {
+  id: string
+  amount: number
+  contributed_at: string
+  days_in_fund: number
+  interest_saved: number
+  notes: string | null
 }
