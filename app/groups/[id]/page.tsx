@@ -86,7 +86,9 @@ export default async function GroupPage({
     members = (membersRaw ?? []) as GroupMember[]
   }
 
-  const currentRate = rates.length > 0 ? rates[rates.length - 1].rate : 0
+  const today = new Date().toISOString().split('T')[0]
+  const activeRates = rates.filter(r => r.effective_from <= today)
+  const currentRate = activeRates.length > 0 ? activeRates[activeRates.length - 1].rate : 0
   const confirmedContributions = contributions.filter(c => c.status === 'confirmed')
   const summary = calculateSavings(confirmedContributions, rates)
 
